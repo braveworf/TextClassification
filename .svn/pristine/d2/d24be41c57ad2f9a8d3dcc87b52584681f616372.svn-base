@@ -1,0 +1,32 @@
+import pickle
+
+from sklearn import metrics
+from sklearn.metrics import classification_report
+from sklearn.naive_bayes import MultinomialNB
+
+
+def metrics_result(actual, predict):
+    print('精度:{0:.3f}'.format(metrics.precision_score(actual, predict, average='weighted')))
+    print('召回:{0:0.3f}'.format(metrics.recall_score(actual, predict, average='weighted')))
+    print('f1-score:{0:.3f}'.format(metrics.f1_score(actual, predict, average='weighted')))
+    print(classification_report(actual, predict))
+
+if __name__ == '__main__':
+    trainset_path = 'F:\\result\\train_tfidf_space.dat'
+    testset_path = 'F:\\result\\test_tfidf_space.dat'
+    with open(trainset_path, 'rb') as file_obj:
+        trainset = pickle.load(file_obj)
+    '''     训练过程开始      '''
+    classifier = MultinomialNB(alpha=0.001).fit(trainset.tfidf_weight_matrics, trainset.label)
+
+    with open(testset_path, 'rb') as file_obj:
+        testset = pickle.load(file_obj)
+    predicted = classifier.predict(testset.tfidf_weight_matrics)
+
+    for flabel, file_name, expct_cate in zip(testset.label, testset.filenames, predicted):
+        # 打印预测错的文档名
+        if flabel != expct_cate:
+            print(file_name, ": 实际类别:", flabel, " -->预测类别:", expct_cate)
+
+    metrics_result(testset.label, predicted)
+    print("预测完毕!!!")

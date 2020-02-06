@@ -1,0 +1,37 @@
+import pickle
+from scipy import sparse
+
+def Dat2Txt(word_bag = None,  tfidf_space = None):
+    if(tfidf_space is  None):
+        with open(word_bag, 'rb') as file_obj:
+            bunch = pickle.load(file_obj)
+        transform = open(word_bag+'.txt', 'w')
+        for filename, lable, content in zip(bunch.filenames, bunch.label, bunch.contents):
+            transform.write(filename + '\t' + lable + '\t' + content + '\n')
+        transform.close()
+    else:
+        with open(tfidf_space, 'rb') as file_obj:
+            bunch = pickle.load(file_obj)
+        tdm_path = tfidf_space + '_tdm.txt'
+        dict_path = tfidf_space + '_dict.txt'
+        # 将IF-IDF权重矩阵写入到txt文件
+        tdm = open(tdm_path, 'w')
+        for item in bunch.tfidf_weight_matrics:
+            tdm.write(str(item))
+            tdm.write('\n')
+        tdm.close()
+        # 直接储存矩阵(人不可读)
+        # sparse.save_npz(tdm_path, bunch.tfidf_weight_matrics)
+
+        # 将词典写入txt文件
+        dict = open(dict_path, 'w')
+        dict.write('词典维度:' + str(len(bunch.vocabulary)) + '\n')
+        for item in bunch.vocabulary:
+            dict.write(item + ',')
+        dict.close()
+
+if __name__ == '__main__':
+    word_bag = "E:\\DataMining\\test_word_bag.dat"
+    tfidf_space = "E:\\DataMining\\0.876\\test_tfidf_space.dat"
+    # Dat2Txt(word_bag = word_bag)
+    Dat2Txt(tfidf_space = tfidf_space)
